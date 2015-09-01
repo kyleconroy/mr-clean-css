@@ -1,8 +1,7 @@
 require('test/unit')
-require('webmock/minitest')
-require('ruby-clean-css')
+require('mr-clean-css')
 
-class RubyCleanCSS::TestCompressor < Test::Unit::TestCase
+class MrCleanCSS::TestCompressor < Test::Unit::TestCase
 
   def test_compression
     assert_equal('a{color:#7fff00}', compress('a { color: chartreuse; }'))
