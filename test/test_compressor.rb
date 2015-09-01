@@ -45,7 +45,7 @@ class MrCleanCSS::TestCompressor < Test::Unit::TestCase
 
 
   def test_remote_import_processing
-    url = 'https://ruby-clean-css.test/foo.css'
+    url = 'https://raw.githubusercontent.com/kyleconroy/mr-clean-css/master/test/foo.css'
     assert_equal(
       'a{color:#7fff00}',
       compress("@import url(#{url});", process_import: true)
