@@ -8,7 +8,7 @@ class MrCleanCSS::Minifier
   #
   def initialize(options)
     js_opts = {
-      'processImport' => false
+      'processImport' => true
     }
 
     cmd = ['cleancss']
@@ -94,18 +94,25 @@ class MrCleanCSS::Minifier
   end
 
   def minify(contents)
-    output = nil
+    out = nil
+    return_value = nil
     errors = []
+    err = nil
 
     Open3.popen3(@cmd) do |stdin, stdout, stderr, wait_thr|
       stdin.write(contents)
       stdin.close
-      output = stdout.read
-      errors << stderr.read
+      out = stdout.read
+      err = stderr.read
+      return_value = wait_thr.value
+    end
+
+    unless return_value.success?
+      errors << err
     end
 
     return {
-      min:  output,
+      min:  out,
       errors: errors,
       warnings: {},
     }

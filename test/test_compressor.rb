@@ -1,5 +1,5 @@
-require('test/unit')
-require('mr-clean-css')
+require 'test/unit'
+require 'mr-clean-css'
 
 class MrCleanCSS::TestCompressor < Test::Unit::TestCase
 
@@ -38,7 +38,7 @@ class MrCleanCSS::TestCompressor < Test::Unit::TestCase
         a {
           color: chartreuse;
         }
-      `, process_import: true)
+      `)
     )
     File.unlink(local_path)
   end
@@ -48,7 +48,7 @@ class MrCleanCSS::TestCompressor < Test::Unit::TestCase
     url = 'https://raw.githubusercontent.com/kyleconroy/mr-clean-css/master/test/foo.css'
     assert_equal(
       'a{color:#7fff00}',
-      compress("@import url(#{url});", process_import: true)
+      compress("@import url(#{url});")
     )
   end
 
@@ -61,11 +61,19 @@ class MrCleanCSS::TestCompressor < Test::Unit::TestCase
     }
     assert_equal(
       'div{background-image:url(images/lenna.jpg)}',
-      compress("@import url(#{local_import_path});", process_import: true)
+      compress("@import url(#{local_import_path});")
     )
     File.unlink(local_import_path)
   end
 
+  def test_processing_error
+    c = MrCleanCSS::Compressor.new
+    c.compress('@import(faksjdfka;lkasdf;asjdf')
+    assert_equal(
+      "\e[31mERROR\e[39m: Broken @import declaration of \"faksjdfka\"\n",
+      c.last_result[:errors].first
+    )
+  end
 
   def compress(str, options = {})
     c = MrCleanCSS::Compressor.new(options)

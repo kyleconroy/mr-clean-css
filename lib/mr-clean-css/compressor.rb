@@ -4,6 +4,7 @@ class MrCleanCSS::Compressor
 
   def initialize(options = {})
     @js_options = options
+    @last_result = nil
   end
 
   def compress(stream_or_string)
