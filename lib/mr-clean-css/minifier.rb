@@ -1,3 +1,5 @@
+require 'open3'
+
 class MrCleanCSS::Minifier
 
   # See README.md for a description of each option, and see
@@ -5,7 +7,11 @@ class MrCleanCSS::Minifier
   # for the JS translation.
   #
   def initialize(options)
-    js_opts = {}
+    js_opts = {
+      'processImport' => false
+    }
+
+    cmd = ['cleancss']
 
     if options.has_key?(:keep_special_comments)
       js_opts['keepSpecialComments'] = {
@@ -68,13 +74,39 @@ class MrCleanCSS::Minifier
       js_opts['debug'] = options[:debug] ? true : false
     end
 
+    # Set up command
+    if js_opts['debug']
+      cmd << "--debug"
+    end
+
+    # Set up command
+    if !js_opts['processImport']
+      cmd << "--skip-import"
+    end
+
+    # Set up command
+    if js_opts['keepBreaks']
+      cmd << "--keep-line-breaks"
+    end
+
     @js_opts = js_opts
+    @cmd = cmd.join(" ")
   end
 
   def minify(contents)
+    output = nil
+    errors = []
+
+    Open3.popen3(@cmd) do |stdin, stdout, stderr, wait_thr|
+      stdin.write(contents)
+      stdin.close
+      output = stdout.read
+      errors << stderr.read
+    end
+
     return {
-      min:  contents,
-      errors: {},
+      min:  output,
+      errors: errors,
       warnings: {},
     }
   end

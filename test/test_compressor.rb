@@ -26,7 +26,7 @@ class MrCleanCSS::TestCompressor < Test::Unit::TestCase
 
 
   def test_local_import_processing
-    local_path = 'test/foo.css'
+    local_path = 'test/bar.css'
     File.open(local_path, 'w') { |f|
       f << 'b { font-weight: 900; }'
     }
@@ -38,38 +38,37 @@ class MrCleanCSS::TestCompressor < Test::Unit::TestCase
         a {
           color: chartreuse;
         }
-      `)
+      `, process_import: true)
     )
     File.unlink(local_path)
   end
 
 
   def test_remote_import_processing
-    url = 'http://ruby-clean-css.test/foo.css'
-    stub_request(:get, url).to_return(:body => 'a { color: chartreuse; }')
+    url = 'https://ruby-clean-css.test/foo.css'
     assert_equal(
       'a{color:#7fff00}',
-      compress("@import url(#{url});")
+      compress("@import url(#{url});", process_import: true)
     )
   end
 
 
   def test_url_rebasing
-    local_import_path = 'test/foo.css'
+    local_import_path = 'test/bar.css'
     local_image_path = '../images/lenna.jpg'
     File.open(local_import_path, 'w') { |f|
       f << "div { background-image: url(#{local_image_path}); }"
     }
     assert_equal(
       'div{background-image:url(images/lenna.jpg)}',
-      compress("@import url(#{local_import_path});")
+      compress("@import url(#{local_import_path});", process_import: true)
     )
     File.unlink(local_import_path)
   end
 
 
   def compress(str, options = {})
-    c = RubyCleanCSS::Compressor.new(options)
+    c = MrCleanCSS::Compressor.new(options)
     c.compress(str)
     if c.last_result[:errors].any?
       STDERR.puts(c.last_result[:errors].join("\n"))
